@@ -49,4 +49,22 @@ public class DFS {
 
 		}
 	}
+
+	private void dfsWithStackII(Vertex rootVertex) {
+		Stack<Vertex> stack = new Stack<>();
+		stack.add(rootVertex);
+		rootVertex.setVistited(true);
+		while (!stack.isEmpty()) {
+			Vertex actualVertex = stack.pop();
+			System.out.print(actualVertex + " ");
+
+			for (Vertex vertex : actualVertex.getNeighborList()) {
+				if (!vertex.isVistited()) {
+					vertex.setVistited(true);
+					stack.push(vertex);
+				}
+			}
+		}
+	}
+
 }
