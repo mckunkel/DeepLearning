@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jlab.groot.data.GraphErrors;
+
 public class SingleTour {
 
 	private List<City> tour = new ArrayList<>();
@@ -23,8 +25,9 @@ public class SingleTour {
 
 		for (int i = 0; i < tour.size(); ++i) {
 			currentTour.set(i, tour.get(i));
-			this.tour = currentTour;
 		}
+		this.tour = currentTour;
+
 	}
 
 	public List<City> getTour() {
@@ -34,11 +37,11 @@ public class SingleTour {
 	public void generateIndividual() {
 		for (int cityIndex = 0; cityIndex < Repository.getNCities(); ++cityIndex) {
 			setCity(cityIndex, Repository.getCity(cityIndex));
-			Collections.shuffle(tour);
 		}
+		Collections.shuffle(tour);
 	}
 
-	private void setCity(int cityIndex, City city) {
+	public void setCity(int cityIndex, City city) {
 		this.tour.set(cityIndex, city);
 		this.distance = 0;
 	}
@@ -78,6 +81,14 @@ public class SingleTour {
 			string += getCity(i) + "--> ";
 		}
 		return string;
+	}
+
+	public GraphErrors toGraphErrors() {
+		GraphErrors graphErrors = new GraphErrors();
+		for (int i = 0; i < getTourSize(); ++i) {
+			graphErrors.addPoint(getCity(i).getX(), getCity(i).getY(), 0.0, 0.0);
+		}
+		return graphErrors;
 	}
 
 }

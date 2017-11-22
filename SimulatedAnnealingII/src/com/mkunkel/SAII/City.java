@@ -6,8 +6,8 @@ public class City {
 	private int y;
 
 	public City() {
-		this.x = (int) Math.random() * 100;
-		this.y = (int) Math.random() * 100;
+		this.x = (int) (Math.random() * 100);
+		this.y = (int) (Math.random() * 100);
 	}
 
 	public City(int x, int y) {
@@ -45,5 +45,4 @@ public class City {
 	public String toString() {
 		return this.x + " " + this.y;
 	}
-
 }
