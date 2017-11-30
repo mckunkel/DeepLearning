@@ -10,7 +10,7 @@ public class App {
 		population.init();
 
 		int generationCounter = 0;
-
+		System.out.println("here");
 		while (generationCounter != Constants.SIMULATION_LENGTH) {
 			++generationCounter;
 
