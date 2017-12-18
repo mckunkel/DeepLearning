@@ -26,13 +26,15 @@ public class Game {
 	}
 
 	private void makeFirstMove() {
-		System.out.println("Who starts? 1 - COMPUTER ; 2 - USER");
+		System.out.println("Who starts? 1 - COMPUTER ; 2 - USER ; 3 - Simulation");
 		int choice = board.getScanner().nextInt();
+		if (choice != 3) {
 
-		if (choice == 1) {
-			Cell cell = new Cell(random.nextInt(Constants.BOARD_SIZE), random.nextInt(Constants.BOARD_SIZE));
-			board.move(cell, CellState.COMPUTER);
-			board.displayBoard();
+			if (choice == 1) {
+				Cell cell = new Cell(random.nextInt(Constants.BOARD_SIZE), random.nextInt(Constants.BOARD_SIZE));
+				board.move(cell, CellState.COMPUTER);
+				board.displayBoard();
+			}
 		}
 	}
 

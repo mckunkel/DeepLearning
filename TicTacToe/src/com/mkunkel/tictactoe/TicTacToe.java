@@ -23,12 +23,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
-public class TicTacToe {
+public class TicTacToe implements ScoreEventListener {
 
 	private JFrame frame;
 	private String startGame = "O";
 	private int xCount = 0;
 	private int oCount = 0;
+	private int dCount = 0;
 
 	private JButton btn1;
 	private JButton btn2;
@@ -47,7 +48,7 @@ public class TicTacToe {
 	private JRadioButton rdbtnHumanStarts;
 	private JRadioButton rdbtnComputerStarts;
 	private JRadioButton rdbtnCompVsComp;
-
+	private JRadioButton learnButton;
 	private boolean gameReady;
 
 	private Board board;
@@ -58,6 +59,9 @@ public class TicTacToe {
 	private volatile boolean playersMove;
 	private JTextField txtCountO;
 	private JTextField txtCountX;
+	private JTextField drawCount;
+
+	private int nSims = 500;
 
 	/**
 	 * Create the application.
@@ -81,13 +85,47 @@ public class TicTacToe {
 			playGame();
 		} else if (rdbtnCompVsComp.isSelected()) {
 			playersMove = true;
-			playByItself();
+			if (learnButton.isSelected()) {
+				dCount = 0;
+				oCount = 0;
+				xCount = 0;
+				System.out.println("learning");
+				int sleeping = nSims * 10;
+				Thread thread = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						for (int i = 1; i <= nSims; i++) {
+							try {
+								Thread.sleep(sleeping / i);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							playByItself();
+							initBoard();
+
+						}
+						System.out.println(dCount + "  " + nSims);
+						if (nSims == dCount) {
+							System.out.println("all is draws");
+							Text2Speech.dospeak(
+									"Greetings Doctor Koongkel. Interesting game. Seems like the only move is not to play. How about a nice game of chess. ",
+									"kevin16");
+						}
+					}
+				});
+				thread.start();
+
+			} else {
+				playByItself();
+			}
 		} else {
 
 		}
 	}
 
-	private void playByItself() {
+	private synchronized void playByItself() {
 		// first we should randomize which player goes first;
 
 		if (random.nextInt(2) == 0) {
@@ -97,7 +135,7 @@ public class TicTacToe {
 			board.move(cell, CellState.COMPUTER);
 			updateGUI(cell.getX(), cell.getY(), CellState.COMPUTER);
 			playersMove = true;
-			playGame();
+			simulateGame();
 
 		} else {
 			startGame = CellState.USER.toString();
@@ -106,7 +144,7 @@ public class TicTacToe {
 			board.move(cell, CellState.USER);
 			updateGUI(cell.getX(), cell.getY(), CellState.USER);
 			playersMove = false;
-			simulatePlayer();
+			simulateGame();
 
 		}
 
@@ -153,7 +191,7 @@ public class TicTacToe {
 	private void gameScore() {
 		txtCountX.setText(String.valueOf(xCount));
 		txtCountO.setText(String.valueOf(oCount));
-
+		drawCount.setText(String.valueOf(dCount));
 	}
 
 	private void choosePlayer() {
@@ -316,9 +354,9 @@ public class TicTacToe {
 		panel.add(panel_16);
 		GridBagLayout gbl_panel_16 = new GridBagLayout();
 		gbl_panel_16.columnWidths = new int[] { 52, 179, 0 };
-		gbl_panel_16.rowHeights = new int[] { 23, 36, 0, 0, 0 };
+		gbl_panel_16.rowHeights = new int[] { 23, 36, 0, 0, 0, 0 };
 		gbl_panel_16.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_16.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_16.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panel_16.setLayout(gbl_panel_16);
 
 		GridBagConstraints gbc_rdbtnHumanStarts = new GridBagConstraints();
@@ -336,14 +374,37 @@ public class TicTacToe {
 		panel_16.add(rdbtnComputerStarts, gbc_rdbtnComputerStarts);
 
 		GridBagConstraints gbc_rdbtnCompVsComp = new GridBagConstraints();
-		gbc_rdbtnCompVsComp.gridwidth = 2;
-		gbc_rdbtnCompVsComp.gridx = 0;
-		gbc_rdbtnCompVsComp.gridy = 3;
+		// gbc_rdbtnCompVsComp.gridwidth = 2;
+		gbc_rdbtnCompVsComp.anchor = GridBagConstraints.NORTHWEST;
+
+		gbc_rdbtnCompVsComp.insets = new Insets(0, 0, 5, 0);
+		gbc_rdbtnCompVsComp.gridx = 1;
+		gbc_rdbtnCompVsComp.gridy = 2;
 		panel_16.add(rdbtnCompVsComp, gbc_rdbtnCompVsComp);
+
+		GridBagConstraints gbc_radioButton = new GridBagConstraints();
+		gbc_rdbtnCompVsComp.insets = new Insets(0, 0, 15, 0);
+
+		// gbc_radioButton.gridwidth = 2;
+		gbc_radioButton.gridx = 1;
+		gbc_radioButton.gridy = 3;
+		panel_16.add(learnButton, gbc_radioButton);
 
 		Panel panel_17 = new Panel();
 		panel.add(panel_17);
 		panel_17.setLayout(new BorderLayout(0, 0));
+
+		drawCount = new JTextField();
+		drawCount.setText("0");
+		drawCount.setHorizontalAlignment(SwingConstants.CENTER);
+		drawCount.setFont(new Font("Tahoma", Font.BOLD, 48));
+		drawCount.setColumns(10);
+		panel_17.add(drawCount, BorderLayout.CENTER);
+
+		JLabel lblNewLabel_1 = new JLabel("Draws");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 36));
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_17.add(lblNewLabel_1, BorderLayout.NORTH);
 	}
 
 	private void buttonClicked(ActionEvent e) {
@@ -449,6 +510,17 @@ public class TicTacToe {
 		this.rdbtnHumanStarts = new JRadioButton("Human Starts");
 		this.rdbtnComputerStarts = new JRadioButton("Computer Starts");
 		this.rdbtnCompVsComp = new JRadioButton("Comp vs. Comp");
+		this.learnButton = new JRadioButton("C vs. C Learn");
+		this.learnButton.setVisible(false);
+		this.rdbtnHumanStarts.addActionListener(e -> {
+			learnButton.setVisible(!rdbtnHumanStarts.isSelected());
+		});
+		this.rdbtnComputerStarts.addActionListener(e -> {
+			learnButton.setVisible(!rdbtnComputerStarts.isSelected());
+		});
+		this.rdbtnCompVsComp.addActionListener(e -> {
+			learnButton.setVisible(rdbtnCompVsComp.isSelected());
+		});
 
 		this.rdbtnComputerStarts.setSelected(true);
 		buttonMenuItem.add(rdbtnComputerStarts);
@@ -495,9 +567,13 @@ public class TicTacToe {
 	private void btnStart() {
 		resetButton();
 		gameReady = true;
+		initBoard();
+		makeFirstMove();
+	}
+
+	private void initBoard() {
 		this.board = new Board();
 		this.board.setupBoard();
-		makeFirstMove();
 	}
 
 	private void playGame() {
@@ -507,6 +583,7 @@ public class TicTacToe {
 			for (Cell cell : board.getRootValues()) {
 				System.out.println("Cell values: " + cell + " minimaxValue: " + cell.getMinimaxValue());
 			}
+			System.out.println("#########");
 			board.move(board.getBestMove(), CellState.COMPUTER);
 			updateGUI(board.getBestMove().getX(), board.getBestMove().getY(), CellState.COMPUTER);
 			playersMove = true;
@@ -521,26 +598,47 @@ public class TicTacToe {
 
 	}
 
-	// simulate player
-	private void simulatePlayer() {
-		if (board.isRunning() && playersMove) {
+	private void simulateGame() {
+		System.out.println(board.isRunning() + "  " + playersMove);
+		while (board.isRunning()) {
 
-			board.callMiniMax(0, CellState.USER);
-			for (Cell cell : board.getRootValues()) {
-				System.out.println("Cell values: " + cell + " minimaxValue: " + cell.getMinimaxValue());
+			if (playersMove) {
+				board.callMiniMaxUser(0, CellState.USER);
+				for (Cell cell : board.getRootValues()) {
+					System.out.println("User Cell values: " + cell + " minimaxValue: " + cell.getMinimaxValue());
+				}
+				board.move(board.getBestMove(), CellState.USER);
+				updateGUI(board.getBestMove().getX(), board.getBestMove().getY(), CellState.USER);
+				playersMove = false;
+				board.displayBoard();
 			}
-			board.move(board.getBestMove(), CellState.USER);
-			updateGUI(board.getBestMove().getX(), board.getBestMove().getY(), CellState.USER);
-			playersMove = false;
+			if (!board.isRunning()) {
 
+				checkStatus();
+				gameScore();
+
+				gameReady = false;
+				break;
+			}
+			if (!playersMove) {
+				board.callMiniMaxComp(0, CellState.COMPUTER);
+				for (Cell cell : board.getRootValues()) {
+					System.out.println("Computer Cell values: " + cell + " minimaxValue: " + cell.getMinimaxValue());
+				}
+				board.move(board.getBestMove(), CellState.COMPUTER);
+				updateGUI(board.getBestMove().getX(), board.getBestMove().getY(), CellState.COMPUTER);
+				playersMove = true;
+				board.displayBoard();
+			}
+			if (!board.isRunning()) {
+
+				checkStatus();
+				gameScore();
+
+				gameReady = false;
+				break;
+			}
 		}
-		if (!board.isRunning()) {
-			checkStatus();
-			gameScore();
-
-			gameReady = false;
-		}
-
 	}
 
 	private void checkStatus() {
@@ -552,7 +650,10 @@ public class TicTacToe {
 			oCount++;
 		} else {
 			System.out.println("It is a draw...");
+			dCount++;
 		}
+		gameScore();
+
 		// gameReady = false;
 	}
 
@@ -567,6 +668,11 @@ public class TicTacToe {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void nextIteration(ScoreEvent event) {
+		gameScore();
 	}
 
 }

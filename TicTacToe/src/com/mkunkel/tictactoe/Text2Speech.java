@@ -8,9 +8,14 @@ import javax.speech.synthesis.SynthesizerModeDesc;
 import javax.speech.synthesis.Voice;
 
 public class Text2Speech {
-	String speaktext;
 
-	public void dospeak(String speak, String voicename) {
+	private Text2Speech() {
+
+	}
+
+	private static String speaktext;
+
+	public static void dospeak(String speak, String voicename) {
 		speaktext = speak;
 		String voiceName = voicename;
 		try {
@@ -40,9 +45,8 @@ public class Text2Speech {
 	}
 
 	public static void main(String[] args) {
-		Text2Speech obj = new Text2Speech();
-		obj.dospeak(
-				"Greetings Doctor Koonkel. Interesting game. Seems like the only move is not to play. How about a nice game of chess. ",
+		// Text2Speech obj = new Text2Speech();
+		dospeak("Greetings Doctor Koonkel. Interesting game. Seems like the only move is not to play. How about a nice game of chess. ",
 				"kevin16");
 	}
 }

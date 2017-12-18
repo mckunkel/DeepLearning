@@ -73,7 +73,7 @@ public class Board {
 		return false;
 	}
 
-	private List<Cell> getEmptyCells() {
+	public List<Cell> getEmptyCells() {
 		emptyCells = new ArrayList<>();
 		for (int i = 0; i < Constants.BOARD_SIZE; i++) {
 			for (int j = 0; j < Constants.BOARD_SIZE; j++) {
@@ -147,6 +147,16 @@ public class Board {
 		minimax(depth, player);
 	}
 
+	public void callMiniMaxUser(int depth, CellState player) {
+		rootValues.clear();
+		minimaxUser(depth, player);
+	}
+
+	public void callMiniMaxComp(int depth, CellState player) {
+		rootValues.clear();
+		minimaxComp(depth, player);
+	}
+
 	private int minimax(int depth, CellState player) {
 		if (isWinning(CellState.COMPUTER))
 			return +1;
@@ -176,6 +186,90 @@ public class Board {
 				move(point, CellState.USER);
 				int currentScore = minimax(depth + 1, CellState.COMPUTER);
 				scores.add(currentScore);
+			}
+			board[point.getX()][point.getY()] = CellState.EMPTY;
+		}
+		if (player == CellState.COMPUTER) {
+			return returnMax(scores);
+		}
+		return returnMin(scores);
+	}
+
+	private int minimaxUser(int depth, CellState player) {
+		if (isWinning(CellState.COMPUTER))
+			return -1;
+		if (isWinning(CellState.USER))
+			return +1;
+
+		List<Cell> avaiableCells = getEmptyCells();
+
+		if (avaiableCells.isEmpty())
+			return 0;
+
+		List<Integer> scores = new ArrayList<>();
+
+		for (int i = 0; i < avaiableCells.size(); i++) {
+			Cell point = avaiableCells.get(i);
+
+			if (player == CellState.COMPUTER) {
+				move(point, CellState.COMPUTER);
+				int currentScore = minimaxUser(depth + 1, CellState.USER);
+				scores.add(currentScore);
+
+				// if (depth == 0) {
+				// point.setMinimaxValue(currentScore);
+				// rootValues.add(point);
+				// }
+			} else if (player == CellState.USER) {
+				move(point, CellState.USER);
+				int currentScore = minimaxUser(depth + 1, CellState.COMPUTER);
+				scores.add(currentScore);
+				if (depth == 0) {
+					point.setMinimaxValue(currentScore);
+					rootValues.add(point);
+				}
+			}
+			board[point.getX()][point.getY()] = CellState.EMPTY;
+		}
+		if (player == CellState.USER) {
+			return returnMax(scores);
+		}
+		return returnMin(scores);
+	}
+
+	private int minimaxComp(int depth, CellState player) {
+		if (isWinning(CellState.COMPUTER))
+			return +1;
+		if (isWinning(CellState.USER))
+			return -1;
+
+		List<Cell> avaiableCells = getEmptyCells();
+
+		if (avaiableCells.isEmpty())
+			return 0;
+
+		List<Integer> scores = new ArrayList<>();
+
+		for (int i = 0; i < avaiableCells.size(); i++) {
+			Cell point = avaiableCells.get(i);
+
+			if (player == CellState.COMPUTER) {
+				move(point, CellState.COMPUTER);
+				int currentScore = minimaxComp(depth + 1, CellState.USER);
+				scores.add(currentScore);
+
+				if (depth == 0) {
+					point.setMinimaxValue(currentScore);
+					rootValues.add(point);
+				}
+			} else if (player == CellState.USER) {
+				move(point, CellState.USER);
+				int currentScore = minimaxComp(depth + 1, CellState.COMPUTER);
+				scores.add(currentScore);
+				// if (depth == 0) {
+				// point.setMinimaxValue(currentScore);
+				// rootValues.add(point);
+				// }
 			}
 			board[point.getX()][point.getY()] = CellState.EMPTY;
 		}
