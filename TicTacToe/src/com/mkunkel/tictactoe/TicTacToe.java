@@ -514,9 +514,17 @@ public class TicTacToe implements ScoreEventListener {
 		this.learnButton.setVisible(false);
 		this.rdbtnHumanStarts.addActionListener(e -> {
 			learnButton.setVisible(!rdbtnHumanStarts.isSelected());
+			dCount = 0;
+			oCount = 0;
+			xCount = 0;
+			gameScore();
 		});
 		this.rdbtnComputerStarts.addActionListener(e -> {
 			learnButton.setVisible(!rdbtnComputerStarts.isSelected());
+			dCount = 0;
+			oCount = 0;
+			xCount = 0;
+			gameScore();
 		});
 		this.rdbtnCompVsComp.addActionListener(e -> {
 			learnButton.setVisible(rdbtnCompVsComp.isSelected());
